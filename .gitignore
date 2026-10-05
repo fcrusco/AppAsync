@@ -1,0 +1,99 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+.vscode/
+.vscode_extensions/
+*.user
+*.suo
+*.sln.docstates
+
+# Visual Studio Code
+*.code-workspace
+.vs-code/
+
+# Rider
+.idea/
+*.sln.iml
+*.DotSettings.user
+
+# ReSharper
+_ReSharper*/
+*.resharper
+*.resharper.user
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Entity Framework
+*.edmx.diagram
+
+# Rider/JetBrains
+**/.idea/*
+**/out/
+
+# Build output directories
+bin/
+obj/
+publish/
+
+# Temporary files
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# User-specific files
+launchSettings.json
+*.VC.db
+*.VC.VC.opendb
+
+# Test Results
+TestResults/
+*.trx
+
+# Local environment files
+.env
+.env.local
+appsettings.local.json
+
+# Package management
+packages/
+.packages/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Coverage reports
+coverage/
+coveragereport/
+OpenCover/
