@@ -3,7 +3,7 @@
 
 # Demonstração Prática de Programação Assíncrona no .NET 10 (Windows Forms)
 
-Este projeto foi desenvolvido como material didático para a disciplina de Engenharia de Software. O objetivo é ilustrar, de forma visual e mensurável, como a programação assíncrona com `async`, `await` e a classe `Task` opera nos bastidores de uma aplicação com interface gráfica (UI).
+Este projeto foi desenvolvido como material didático. O objetivo é ilustrar, de forma visual e mensurável, como a programação assíncrona opera nos bastidores de uma aplicação com interface gráfica (UI).
 
 ---
 
@@ -44,84 +44,11 @@ No Windows Forms, apenas a thread primária (a **UI Thread**) tem permissão par
 
 ---
 
-## 3. Código Fonte Completo
-
-```csharp
-namespace AppAsync
-{
-    public partial class Form1 : Form
-    {
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
-        private async void btnIniciar_Click(object sender, EventArgs e)
-        {
-            lbResultados.Items.Clear();
-            lblStatus.Text = "Status: Executando tarefas assíncronas...";
-            btnIniciar.Enabled = false;
-
-            try
-            {
-                // Dispara as 4 tarefas concorrentes de forma independente (não bloqueante)
-                var tarefasEmAndamento = new List<Task<string>>
-                {
-                    ExecutarTarefaAssincrona("Tarefa 1", 1000),
-                    ExecutarTarefaAssincrona("Tarefa 2", 8000),
-                    ExecutarTarefaAssincrona("Tarefa 3", 4000),
-                    ExecutarTarefaAssincrona("Tarefa 4", 2000)
-                };
-
-                // Loop para processar os resultados conforme chegam
-                while (tarefasEmAndamento.Count > 0)
-                {
-                    // Aguarda a primeira tarefa que finalizar
-                    Task<string> tarefaConcluida = await Task.WhenAny(tarefasEmAndamento);
-
-                    // Remove da lista para não aguardá-la novamente
-                    tarefasEmAndamento.Remove(tarefaConcluida);
-
-                    // Extrai o resultado da tarefa concluída
-                    string resultado = await tarefaConcluida;
-
-                    // Atualiza a interface gráfica diretamente na UI Thread
-                    lbResultados.Items.Add(resultado);
-                }
-
-                lblStatus.Text = "Status: Todas as tarefas concluídas com sucesso!";
-            }
-            catch (Exception ex)
-            {
-                lblStatus.Text = $"Erro durante a execução: {ex.Message}";
-                MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                btnIniciar.Enabled = true;
-            }
-        }
-
-        private async Task<string> ExecutarTarefaAssincrona(string nomeTarefa, int tempoEmMilissegundos)
-        {
-            // Libera a thread e aguarda o timer do runtime sem bloquear
-            await Task.Delay(tempoEmMilissegundos);
-
-            return $"{nomeTarefa} concluída após {tempoEmMilissegundos / 1000}s.";
-        }
-    }
-}
-```
-
----
-
-## 4. Cuidados e Boas Práticas (.NET Moderno)
+## Cuidados e Boas Práticas (.NET 10)
 
 1. **A Exceção da Regra `async void`:**  
    Em C#, métodos assíncronos devem quase invariavelmente retornar `Task` ou `Task<T>`. O uso de `async void` é um antipadrão no ecossistema .NET porque exceções não tratadas em métodos `async void` não podem ser capturadas por chamadas superiores e derrubam o processo (`crash`). A **única exceção legítima** aceita pela engenharia são manipuladores de eventos de UI (`event handlers`, como `btnIniciar_Click`), cuja assinatura nativa da linguagem exige o retorno `void`.
 2. **Uso de `try/finally` para Integridade da Interface:**  
-   O botão `btnIniciar` é desabilitado no início do fluxo para evitar condições de corrida (*race conditions*) ou cliques repetidos que sobrecarreguem o sistema. O uso do bloco `finally` garante matematicamente que o botão voltará ao estado habilitado, mesmo em cenários de pane ou cancelamento de tarefas.
+   O botão `btnIniciar` é desabilitado no início do fluxo para evitar condições de corrida ou cliques repetidos que sobrecarreguem o sistema. O uso do bloco `finally` garante matematicamente que o botão voltará ao estado habilitado, mesmo em cenários de pane ou cancelamento de tarefas.
 3. **Evite Bloqueios Síncronos (`.Result` e `.Wait()`):**  
-   Nunca substitua `await` por `.Result` ou `.Wait()` em aplicações com `SynchronizationContext` (como Windows Forms, WPF ou ASP.NET clássico). Fazer isso bloqueia a UI Thread enquanto a tarefa tenta despachar a continuação de volta para essa mesma UI Thread, gerando um travamento mútuo definitivo (**Deadlock**).
-
-   
+   Nunca substitua `await` por `.Result` ou `.Wait()` em aplicações com `SynchronizationContext`. Fazer isso bloqueia a UI Thread enquanto a tarefa tenta despachar a continuação de volta para essa mesma UI Thread, gerando um travamento mútuo definitivo (**Deadlock**).
